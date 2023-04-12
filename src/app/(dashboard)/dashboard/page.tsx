@@ -1,29 +1,35 @@
-import {FC} from "react";
+import ApiDashboard from '@/components/ApiDashboard'
+import RequestApiKey from '@/components/RequestApiKey'
+import { authOptions } from '@/lib/auth'
+import { db } from '@/lib/db'
+import { getServerSession } from 'next-auth'
 
-import type {Metadata} from "next";
-import {getServerSession} from "next-auth";
-import {authOptions} from "@/lib/auth";
-import {notFound} from "next/navigation";
-import { db } from "@/app/lib/db";
-import ApiDashboard from "@/app/components/ApiDashboard";
-import RequestApiKey from "@/app/components/RequestApiKey";
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 
 export const metadata: Metadata = {
-    title: 'Similarity App | Dashboard',
-    description: 'Free & open-source text similarity API.'
+    title: 'Similarity API | Dashboard',
+    description: 'Free & open-source text similarity API',
 }
 
 const page = async () => {
     const user = await getServerSession(authOptions)
-
-    if(!user) return notFound()
+    if (!user) return notFound()
 
     const apiKey = await db.apiKey.findFirst({
-        where: {userId: user.user.id, enabled: true},
+        where: { userId: user.user.id, enabled: true },
     })
-    return <div className='max-w-7xl mx-auto mt-16'>
-        {apiKey ? <ApiDashboard /> : <RequestApiKey />}
-    </div>
+
+    return (
+        <div className='max-w-7xl mx-auto mt-16'>
+            {apiKey ? (
+                // @ts-expect-error Server Component
+                <ApiDashboard />
+            ) : (
+                <RequestApiKey />
+            )}
+        </div>
+    )
 }
 
 export default page
